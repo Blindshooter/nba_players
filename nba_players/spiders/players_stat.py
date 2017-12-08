@@ -1,10 +1,36 @@
 import scrapy
 
 
+
+
+import requests
+import csv
+import sys
+
+# get me all active players
+
+url_allPlayers = ("http://stats.nba.com/stats/commonallplayers?IsOnlyCurrentSeason"
+		"=0&LeagueID=00&Season=2015-16")
+
+#request url and parse the JSON
+response = requests.get(url_allPlayers)
+response.raise_for_status()
+players = response.json()['resultSets'][0]['rowSet']
+
+# use roster status flag to check if player is still actively playing
+active_players = [players[i] for i in range(0,len(players)) if players[i][2]==1 ]
+
+ids = [active_players[i][0] for i in range(0,len(active_players))]
+
+print("Number of Active Players: " + str(len(ids)))
+
+### https://gist.github.com/timmyshen/32d682c7b8aef014c256
+
+
 class PlayerStats(scrapy.Spider):
     name = "nba_palayer_stats"
     start_urls = [
-        'http://quotes.toscrape.com/page/1/',
+        'http://stats.nba.com/players/list/',
     ]
 
     def parse(self, response):
